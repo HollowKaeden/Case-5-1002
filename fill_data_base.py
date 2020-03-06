@@ -1,21 +1,16 @@
 import sqlite3
 from remote import *
+import dataBase as db
 conn = sqlite3.connect("temp_data_full.db")
 cursor = conn.cursor()
 
-def clearDtBs():
-    cursor.execute('DELETE FROM APARTMENTS')
-    cursor.execute('DELETE FROM HOUSES')
-    cursor.execute('DELETE FROM CITIES')
-
 def instalInfo():
+    db.connect("temp_data_full.db")
     for city_null in get_cities():
         city_id = city_null['city_id']
         city = get_city_data(city_id)
-        # name, area_count, house_count, apartment_count
-        cursor.execute('INSERT INTO CITIES VALUES (?,?,?,?,?)',(city_id,
-                       city['city_name'], city['area_count'],
-                       city['house_count'], city['apartment_count']))
+
+        db.add_city(city_id, city)
 
         for area_id in range(1, city['area_count'] + 1):
             # [{'house_id': 1, 'apartment_count': 56}...]
@@ -30,4 +25,4 @@ def instalInfo():
                     cursor.execute('''INSERT INTO APARTMENTS (apartment_number, house_id) 
                                     VALUES (?,?)''',
                                    (apartment_number, house['house_id']))
-conn.commit()
+    conn.commit()
