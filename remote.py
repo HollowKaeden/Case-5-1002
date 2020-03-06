@@ -26,14 +26,14 @@ def get_cities():
 
 
 def get_city_data(city_id):
-    r = requests.get('http://dt.miet.ru/ppo_it/api/' + city_id,
+    r = requests.get('http://dt.miet.ru/ppo_it/api/' + str(city_id),
                      headers={'X-Auth-Token': '3zqb6xwartk4fga1'})
     # Возвращает кортеж c элементами в порядке кол-ва домов, районов, квартир, температуры, название
     return r.json()['data']
 
 
 def get_city_temperature(city_id):
-    r = requests.get('http://dt.miet.ru/ppo_it/api/' + city_id + '/temperature',
+    r = requests.get('http://dt.miet.ru/ppo_it/api/' + str(city_id) + '/temperature',
                      headers={'X-Auth-Token': '3zqb6xwartk4fga1'})
     # Возвращает температуру в указанном городе
     temp = r.json()['data']
@@ -41,7 +41,7 @@ def get_city_temperature(city_id):
 
 
 def get_area_data(city_id, area_id):
-    r = requests.get('http://dt.miet.ru/ppo_it/api/' + city_id + '/' + area_id,
+    r = requests.get('http://dt.miet.ru/ppo_it/api/' + str(city_id) + '/' + str(area_id),
                      headers={'X-Auth-Token': '3zqb6xwartk4fga1'})
     # Возвращает массив со словарями, в которых содержатся id домов и их кол-во квартир (В районе)
     # {'house_id': 1, 'apartment_count': 56} и т. д.
@@ -49,7 +49,7 @@ def get_area_data(city_id, area_id):
 
 
 def get_apartment_count(city_id, area_id, house_id):
-    r = requests.get('http://dt.miet.ru/ppo_it/api/' + city_id + '/' + area_id + '/' + house_id,
+    r = requests.get('http://dt.miet.ru/ppo_it/api/' + str(city_id) + '/' + str(area_id) + '/' + str(house_id),
                      headers={'X-Auth-Token': '3zqb6xwartk4fga1'})
     # Возвращает количество квартир в доме в районе в городе
     apartment_count = r.json()['data']
@@ -57,8 +57,8 @@ def get_apartment_count(city_id, area_id, house_id):
 
 
 def get_apartments_temperature(city_id, area_id, house_id):
-    r = requests.get('http://dt.miet.ru/ppo_it/api/' + city_id +
-                     '/' + area_id + '/' + house_id + '/temperature',
+    r = requests.get('http://dt.miet.ru/ppo_it/api/' + str(city_id) +
+                     '/' + str(area_id) + '/' + str(house_id) + '/temperature',
                      headers={'X-Auth-Token': '3zqb6xwartk4fga1'})
     # Возвращает массив со словарями, в которых квартиры и температура в них
     # {'apartment_id': 1, 'temperature': 19} и т. д.
@@ -66,8 +66,8 @@ def get_apartments_temperature(city_id, area_id, house_id):
 
 
 def get_apartment_temperature(city_id, area_id, house_id, apartment_id):
-    r = requests.get('http://dt.miet.ru/ppo_it/api/' + city_id + '/' +
-                     area_id + '/' + house_id + '/' + apartment_id,
+    r = requests.get('http://dt.miet.ru/ppo_it/api/' + str(city_id) + '/' +
+                     str(area_id) + '/' + str(house_id) + '/' + str(apartment_id),
                      headers={'X-Auth-Token': '3zqb6xwartk4fga1'})
     # Возвращает температуру в квартире в доме в районе в городе ¯\_(ツ)_/¯
     temp = r.json()['data']['temperature']
@@ -75,3 +75,4 @@ def get_apartment_temperature(city_id, area_id, house_id, apartment_id):
 
 
 # Здесь должна быть функция, но её тут нет, т.к. она бесполезна (Та же функция, что и верхняя)
+print(get_city_data('1'))

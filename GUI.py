@@ -1,5 +1,6 @@
 # Интерфейс
 import sys
+import sqlite3
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QComboBox
 from PyQt5.QtGui import QIcon
 import matplotlib.pyplot as plt
@@ -20,10 +21,12 @@ class Example(QWidget):
         btn.clicked.connect(self.hello)
         btn.move(110, 90)
         combo = QComboBox(self)
-        combo.addItems(['Melon', 'Apple'])
+        combo.addItems(['Алмазный', 'Восточный', 'Западный', 'Курортный', 'Лесной',
+                        'Научный', 'Полярный', 'Портовый', 'Приморский', 'Садовый',
+                        'Северный', 'Степной', 'Таёжный', 'Центральный', 'Южный'])
         combo1 = QComboBox(self)
         combo1.addItem("Pear")
-        combo1.move(60, 0)
+        combo1.move(110, 0)
         self.show()
 
 
