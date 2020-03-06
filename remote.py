@@ -29,12 +29,7 @@ def get_city_data(city_id):
     r = requests.get('http://dt.miet.ru/ppo_it/api/' + city_id,
                      headers={'X-Auth-Token': '3zqb6xwartk4fga1'})
     # Возвращает кортеж c элементами в порядке кол-ва домов, районов, квартир, температуры, название
-    house_count = r.json()['data']['house_count']
-    area_count = r.json()['data']['area_count']
-    apartment_count = r.json()['data']['apartment_count']
-    temperature = r.json()['data']['temperature']
-    city_name = r.json()['data']['city_name']
-    return house_count, area_count, apartment_count, temperature, city_name
+    return r.json()['data']
 
 
 def get_city_temperature(city_id):
