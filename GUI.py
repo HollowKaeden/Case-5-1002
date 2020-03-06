@@ -20,15 +20,27 @@ class Example(QWidget):
         btn = QPushButton('ВыХоД', self)
         btn.clicked.connect(self.hello)
         btn.move(110, 90)
-        combo = QComboBox(self)
-        combo.addItems(['Алмазный', 'Восточный', 'Западный', 'Курортный', 'Лесной',
-                        'Научный', 'Полярный', 'Портовый', 'Приморский', 'Садовый',
-                        'Северный', 'Степной', 'Таёжный', 'Центральный', 'Южный'])
-        combo1 = QComboBox(self)
-        combo1.addItem("Pear")
-        combo1.move(110, 0)
+
+        conn = sqlite3.connect("temp_data_full.db")
+        # conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        sql = "SELECT name FROM CITIES"
+        cursor.execute(sql)
+        self.combo_cities = QComboBox(self)
+        self.combo_cities.addItems([i[0] for i in cursor.fetchall()])
+        self.combo_cities.activated[str].connect(self.ccChanged)
+        self.combo_areas = QComboBox(self)
+        self.combo_areas.move(110, 0)
         self.show()
 
+
+    def ccChanged(self, text):
+        cursor = sqlite3.connect("temp_data_full.db").cursor()
+        sql = 'SELECT area_count FROM CITIES WHERE name=?'
+        cursor.execute(sql, [(text)])
+        self.combo_areas.addItems(range(cursor.fetchall()[0][0]))
+        self.combo_areas.move(110, 0)
 
     def hello(self):
         plt.plot([1, 2, 3, 4, 5], [1, 3, 1, 3, 1])

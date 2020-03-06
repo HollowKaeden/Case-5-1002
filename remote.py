@@ -72,7 +72,3 @@ def get_apartment_temperature(city_id, area_id, house_id, apartment_id):
     # Возвращает температуру в квартире в доме в районе в городе ¯\_(ツ)_/¯
     temp = r.json()['data']['temperature']
     return temp
-
-
-# Здесь должна быть функция, но её тут нет, т.к. она бесполезна (Та же функция, что и верхняя)
-print(get_city_data('1'))
