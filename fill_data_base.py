@@ -1,6 +1,6 @@
 import sqlite3
 from remote import *
-conn = sqlite3.connect("temp_data.db")
+conn = sqlite3.connect("temp_data_full.db")
 cursor = conn.cursor()
 
 def clearDtBs():
