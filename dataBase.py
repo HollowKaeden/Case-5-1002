@@ -59,6 +59,10 @@ def get_cities():
                     cursor.execute("SELECT * FROM CITIES", (id,)).fetchall()))
 
 
+def get_houses():
+    return list(cursor.execute('SELECT * from HOUSES'))
+
+
 def get_city(id) -> City:
     result = cursor.execute("SELECT * FROM CITIES WHERE id=?", (id, )).fetchone()
     return City(result[0], result[1], result[2], result[3], result[4])
@@ -72,18 +76,13 @@ def get_names_citys():
     return [i[0] for i in cursor.execute('SELECT name FROM CITIES')]
 
 
-def add_temperature_citys(time_id):
-    for i in [j[0] for j in cursor.execute('SELECT id FROM CITIES')]:
-        cursor.execute('INSERT INTO CITIES_TEMPERATURE (city_id, time_id, temperature) VALUES (?, ?, ?)',
-                       (i, time_id, float(get_city_temperature(i))))
+def add_temperature_city(time_id, temp, city_id):
+    cursor.execute('INSERT INTO CITIES_TEMPERATURE (city_id, time_id, temperature) VALUES (?, ?, ?)',
+                       (city_id, time_id, float(temp)))
     conn.commit()
 
 
-def add_temperature_apartments(time_id):
-    for house in list(cursor.execute('SELECT * FROM HOUSES')):
-        print(2)
-        city_id, area_id, house_id = house[1], house[2], house[3]
-        for apartment_id in range(1, house[-1] + 1):
-            cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
-                           (apartment_id, time_id, float(get_apartment_temperature(city_id, area_id, house_id, apartment_id))))
-        conn.commit()
+def add_temperature_apartment(time_id, apartment_id, temperature):
+    cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
+                        (apartment_id, time_id, temperature))
+    conn.commit()
