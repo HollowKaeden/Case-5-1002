@@ -15,6 +15,7 @@ class City:
 cursor = None
 conn = None
 
+
 def connect():
     global cursor, conn
     conn = sqlite3.connect("temp_data_full.db")
@@ -28,9 +29,11 @@ def clearDtBs():
 
     conn.commit()
 
+
 def clearDtBs_temperature():
     cursor.execute('DELETE FROM APARTMENT_TEMPERATURE')
     cursor.execute('DELETE FROM CITIES_TEMPERATURE')
+
 
 def add_city(city_id, city):
     # name, area_count, house_count, apartment_count
@@ -104,3 +107,13 @@ def get_house_apartment_count(city_id, area_id, house_id):
     return cursor.execute('SELECT apartment_count FROM HOUSES WHERE city_\
 id=? and area_id=? and house_number=?',
                           (city_id, area_id, house_id, )).fetchone()[0]
+
+
+def get_cities_temperature_half_year(city_id):
+    return cursor.execute('SELECT temperature FROM CITIES_TEMPERATURE WHERE time_id <= 180 and city_id=?', (city_id, )).fetchall()
+
+
+def get_apartments_temperature_from_one_city(city_id):
+    return cursor.execute('SELECT a.apartment_number, at.temperature FROM HOUSES \
+h INNER JOIN APARTMENTS a on h.id = a.house_id INNER JOIN APARTMENT_TEMPERATURE at \
+on a.id = at.apartment_id WHERE h.city_id=?', (city_id, )).fetchall()

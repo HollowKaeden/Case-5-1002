@@ -5,6 +5,7 @@ from PyQt5.QtGui import QFont
 from PyQt5 import QtCore
 import remote as rmt
 import dataBase as db
+import matplotlib.pyplot as plt
 
 
 class main_window(QWidget):
@@ -45,10 +46,12 @@ class main_window(QWidget):
         self.secondWin.show()
 
     def second_task(self):
-        pass
+        plt.plot(db.get_cities_temperature_half_year(1))
+        plt.ylabel('Температура в квартирах')
+        plt.show()
 
     def third_task(self):
-        pass
+        print(db.get_apartments_temperature_from_one_city(1))
 
     def fourth_task(self):
         pass
