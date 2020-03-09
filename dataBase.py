@@ -110,7 +110,7 @@ id=? and area_id=? and house_number=?',
 
 
 def get_cities_temperature_half_year(city_id):
-    return cursor.execute('SELECT temperature FROM CITIES_TEMPERATURE WHERE time_id <= 180 and city_id=?', (city_id, )).fetchall()
+    return cursor.execute('SELECT temperature FROM CITIES_TEMPERATURE WHERE time_id <= 180 and id=?', (city_id, )).fetchall()
 
 
 def get_apartments_temperature_from_one_city(city_id):
