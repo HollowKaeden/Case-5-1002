@@ -65,6 +65,21 @@ def get_houses():
     return list(cursor.execute('SELECT * from HOUSES'))
 
 
+def add_apartments():
+    for house in get_houses():
+        apartment_count, house_id = house[-1], house[0]
+        for apartment_number in range(1, apartment_count + 1):
+            cursor.execute('''INSERT INTO APARTMENTS (apartment_number, house_id) 
+                                                    VALUES (?,?)''',
+                           (apartment_number, house_id))
+    conn.commit()
+
+
+def get_cities():
+    return list(map(lambda x: City(x[0], x[1], x[2], x[3], x[4]),
+                    cursor.execute("SELECT * FROM CITIES").fetchall()))
+
+
 def get_city(id) -> City:
     result = cursor.execute("SELECT * FROM CITIES WHERE id=?", (id, )).fetchone()
     return City(result[0], result[1], result[2], result[3], result[4])
@@ -78,15 +93,22 @@ def get_names_citys():
     return [i[0] for i in cursor.execute('SELECT name FROM CITIES')]
 
 
-def add_temperature_city(time_id, temp, city_id):
-    cursor.execute('INSERT INTO CITIES_TEMPERATURE (city_id, time_id, temperature) VALUES (?, ?, ?)',
-                       (city_id, time_id, float(temp)))
+def add_temperature_citys(time_id):
+    for city in get_cities():
+        temp = remote.get_city_temperature(city.id)
+        cursor.execute('INSERT INTO CITIES_TEMPERATURE (city_id, time_id, temperature) VALUES (?, ?, ?)',
+                           (city.id, time_id, float(temp)))
     conn.commit()
 
 
-def add_temperature_apartment(time_id, apartment_id, temperature):
-    cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
-                        (apartment_id, time_id, temperature))
+def add_temperature_apartments(time_id):
+    for house in get_houses():
+        city_id, area_id, house_id, house_number = house[1], house[2], house[0], house[3]
+        print(house_id)
+        temp = get_apartments_temperature(city_id, area_id, house_number)
+        for apt in temp:
+            cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
+                                (apt['apartment_id'], time_id, apt['temperature']))
     conn.commit()
 
 
