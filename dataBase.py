@@ -1,6 +1,6 @@
 # Андрей
 import sqlite3
-from remote import *
+import remote
 
 
 class City:
@@ -75,6 +75,11 @@ def add_apartments():
     conn.commit()
 
 
+def get_cities():
+    return list(map(lambda x: City(x[0], x[1], x[2], x[3], x[4]),
+                    cursor.execute("SELECT * FROM CITIES").fetchall()))
+
+
 def get_city(id) -> City:
     result = cursor.execute("SELECT * FROM CITIES WHERE id=?", (id, )).fetchone()
     return City(result[0], result[1], result[2], result[3], result[4])
@@ -88,23 +93,36 @@ def get_names_citys():
     return [i[0] for i in cursor.execute('SELECT name FROM CITIES')]
 
 
-def add_temperature_citys(time_id):
-    for city in get_cities():
-        temp = remote.get_city_temperature(city.id)
-        cursor.execute('INSERT INTO CITIES_TEMPERATURE (city_id, time_id, temperature) VALUES (?, ?, ?)',
-                           (city.id, time_id, float(temp)))
-    conn.commit()
+def get_houses_city(city_id):
+    return cursor.execute('SELECT * FROM HOUSES WHERE city_id=?', (city_id, )).fetchall()
+
+def get_id_apartment(house_id, apartment_number):
+    return cursor.execute('''SELECT a.id FROM APARTMENTS a INNER JOIN HOUSES h ON a.house_id = h.id
+    WHERE h.id=? and a.apartment_number=?''', (house_id, apartment_number)).fetchone()[0]
+
+def get_apartments_number1():
+    return cursor.execute('''SELECT h.city_id, h.area_id, h.house_number, a.apartment_number, a.id
+    FROM APARTMENTS a INNER JOIN HOUSES h ON a.house_id = h.id 
+    WHERE h.house_number=? AND a.apartment_number=? and h.area_id=?
+    ''', (1, 1, 1)).fetchall()
 
 
-def add_temperature_apartments(time_id):
-    for house in get_houses():
-        city_id, area_id, house_id, house_number = house[1], house[2], house[0], house[3]
-        print(house_id)
-        temp = get_apartments_temperature(city_id, area_id, house_number)
-        for apt in temp:
-            cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
-                                (apt['apartment_id'], time_id, apt['temperature']))
-    conn.commit()
+def add_temperature_city(time_id, city_id, temp):
+    cursor.execute('INSERT INTO CITIES_TEMPERATURE (city_id, time_id, temperature) VALUES (?, ?, ?)',
+                        (city_id, time_id, float(temp)))
+
+
+
+def add_temperature_apartment(time_id, apartment_id, temperature):
+    cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
+                   (apartment_id, time_id, float(temperature)))
+
+
+
+def add_temperature_citys_oneApp(apartment_id, time_id, temperature):
+    cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
+                   (apartment_id, time_id, float(temperature)))
+
 
 
 def get_city_id(cityName):
@@ -127,38 +145,28 @@ id=? and area_id=? and house_number=?',
 
 
 def get_cities_temperature_half_year(city_id):
-    return cursor.execute('SELECT temperature FROM CITIES_TEMPERATURE WHERE time_id <= 100 and city_id=?', (city_id, )).fetchall()
+    return cursor.execute('SELECT temperature FROM CITIES_TEMPERATURE WHERE time_id <= 180 and id=?', (city_id, )).fetchall()
 
 
 def get_apartments_temperature_from_one_city(city_id):
     return cursor.execute('SELECT a.apartment_number, at.temperature FROM HOUSES \
 h INNER JOIN APARTMENTS a on h.id = a.house_id INNER JOIN APARTMENT_TEMPERATURE at \
-on a.id = at.apartment_id WHERE city_id=?', (city_id, )).fetchall()
+on a.id = at.apartment_id WHERE h.city_id=?', (city_id, )).fetchall()
 
 
-def get_apartments_temperature_from_all_cities():
-    apartments = [1, 14965, 60673, 107037, 121301, 137325, 148889, 159857, 167757, 180133,
-                  # 189665,
-                  197341,
-                  241681,
-                  252465,
-                  265353]
-    temp = list()
-    for apartment_id in apartments:
-        temp.append(cursor.execute('''SELECT apartment_id, time_id, temperature 
-                                      FROM APARTMENT_TEMPERATURE WHERE apartment_id=?
-                                      ORDER BY time_id''', (apartment_id, )).fetchall())
-    temp.append(cursor.execute('''SELECT apartment_id, time_id, temperature 
-                                  FROM APARTMENT_TEMPERATURE WHERE apartment_id=? 
-                                  GROUP BY time_id
-                                  ORDER BY time_id''', (189665, )).fetchall())
-    return temp
 
+def do_all_requests(time, city_id):
+    # второе задание работает
+    add_temperature_city(time, city_id, remote.get_city_temperature(city_id))
 
-def get_average_temperature(city_id):
-    return [i[0] for i in cursor.execute('''SELECT AVG(at.temperature) FROM HOUSES h
-                                            INNER JOIN APARTMENTS a on h.id = a.house_id 
-                                            INNER JOIN APARTMENT_TEMPERATURE at 
-                                            ON a.id = at.apartment_id
-                                            WHERE city_id=?
-                                            GROUP BY at.time_id''', (city_id, )).fetchall()]
+    # третье задание работает
+    for house in get_houses_city(city_id):
+        for apt in remote.get_apartments_temperature(house[1], house[2], house[3]):
+            add_temperature_apartment(time, get_id_apartment(house[0], apt['apartment_id']), apt['temperature'])
+
+    # четвертое задание работает
+    for app in get_apartments_number1():
+        if city_id == app[0]:
+            continue
+        add_temperature_citys_oneApp(app[4], time, remote.get_apartment_temperature(app[0], app[1], app[2], app[3]))
+    conn.commit()
