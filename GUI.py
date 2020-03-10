@@ -47,14 +47,20 @@ class main_window(QWidget):
 
     def second_task(self):
         plt.plot(db.get_cities_temperature_half_year(1))
-        plt.ylabel('Температура в квартирах')
+        plt.ylabel('Температура')
+        plt.title('Температура в городе Алмазный')
         plt.show()
 
     def third_task(self):
-        print(db.get_apartments_temperature_from_one_city(1))
+        print(db.get_apartments_temperature_from_one_city(7))
 
     def fourth_task(self):
-        pass
+        for i in db.get_apartments_temperature_from_all_cities():
+            print(list(map(lambda x: float(x[2]), i)))
+            plt.plot(list(map(lambda x: float(x[2]), i)))
+        plt.ylabel('Температура')
+        plt.title('Температура в квартирах')
+        plt.show()
 
     def fifth_task(self):
         pass

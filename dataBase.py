@@ -132,10 +132,36 @@ id=? and area_id=? and house_number=?',
 
 
 def get_cities_temperature_half_year(city_id):
-    return cursor.execute('SELECT temperature FROM CITIES_TEMPERATURE WHERE time_id <= 180 and id=?', (city_id, )).fetchall()
+    return cursor.execute('SELECT temperature FROM CITIES_TEMPERATURE WHERE time_id <= 100 and city_id=?', (city_id, )).fetchall()
 
 
 def get_apartments_temperature_from_one_city(city_id):
     return cursor.execute('SELECT a.apartment_number, at.temperature FROM HOUSES \
 h INNER JOIN APARTMENTS a on h.id = a.house_id INNER JOIN APARTMENT_TEMPERATURE at \
-on a.id = at.apartment_id WHERE h.city_id=?', (city_id, )).fetchall()
+on a.id = at.apartment_id WHERE city_id=?', (city_id, )).fetchall()
+
+
+def get_apartments_temperature_from_all_cities():
+    apartments = [1, 14965, 60673, 107037, 121301, 137325, 148889, 159857, 167757, 180133,
+                  # 189665,
+                  197341,
+                  241681,
+                  252465,
+                  265353]
+    temp = list()
+    for apartment_id in apartments:
+        temp.append(cursor.execute('''SELECT apartment_id, time_id, temperature 
+                                      FROM APARTMENT_TEMPERATURE WHERE apartment_id=?
+                                      ORDER BY time_id''', (apartment_id, )).fetchall())
+    temp.append(cursor.execute('''SELECT apartment_id, time_id, temperature 
+                                  FROM APARTMENT_TEMPERATURE WHERE apartment_id=? 
+                                  GROUP BY time_id
+                                  ORDER BY time_id''', (189665, )).fetchall())
+    return temp
+
+def get_average_temperature(city_id):
+    return cursor.execute('''SELECT AVG(at.temperature) FROM HOUSES h
+                      INNER JOIN APARTMENTS a on h.id = a.house_id 
+                      INNER JOIN APARTMENT_TEMPERATURE at on a.id = at.apartment_id
+                      WHERE city_id=?
+                      GROUP BY at.time_id''', (city_id, )).fetchall()
