@@ -75,11 +75,6 @@ def add_apartments():
     conn.commit()
 
 
-def get_cities():
-    return list(map(lambda x: City(x[0], x[1], x[2], x[3], x[4]),
-                    cursor.execute("SELECT * FROM CITIES").fetchall()))
-
-
 def get_city(id) -> City:
     result = cursor.execute("SELECT * FROM CITIES WHERE id=?", (id, )).fetchone()
     return City(result[0], result[1], result[2], result[3], result[4])
@@ -159,9 +154,11 @@ def get_apartments_temperature_from_all_cities():
                                   ORDER BY time_id''', (189665, )).fetchall())
     return temp
 
+
 def get_average_temperature(city_id):
-    return cursor.execute('''SELECT AVG(at.temperature) FROM HOUSES h
-                      INNER JOIN APARTMENTS a on h.id = a.house_id 
-                      INNER JOIN APARTMENT_TEMPERATURE at on a.id = at.apartment_id
-                      WHERE city_id=?
-                      GROUP BY at.time_id''', (city_id, )).fetchall()
+    return [i[0] for i in cursor.execute('''SELECT AVG(at.temperature) FROM HOUSES h
+                                            INNER JOIN APARTMENTS a on h.id = a.house_id 
+                                            INNER JOIN APARTMENT_TEMPERATURE at 
+                                            ON a.id = at.apartment_id
+                                            WHERE city_id=?
+                                            GROUP BY at.time_id''', (city_id, )).fetchall()]

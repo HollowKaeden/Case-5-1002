@@ -52,14 +52,18 @@ class main_window(QWidget):
         plt.show()
 
     def third_task(self):
-        print(db.get_apartments_temperature_from_one_city(7))
+        print(db.get_average_temperature(7))
 
     def fourth_task(self):
+        fig, axs = plt.subplots(4, 4)
+        plts = list()
         for i in db.get_apartments_temperature_from_all_cities():
-            print(list(map(lambda x: float(x[2]), i)))
-            plt.plot(list(map(lambda x: float(x[2]), i)))
-        plt.ylabel('Температура')
-        plt.title('Температура в квартирах')
+            plts.append(list(map(lambda x: float(x[2]), i)))
+        for i in range(4):
+            for j in range(4):
+                if not(i == 3 and j == 3):
+                    axs[i, j].plot(plts.pop())
+        fig.suptitle('Температура в квартирах')
         plt.show()
 
     def fifth_task(self):
