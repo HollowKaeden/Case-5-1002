@@ -195,3 +195,12 @@ def get_average_temperature(city_id):
                       INNER JOIN APARTMENT_TEMPERATURE at on a.id = at.apartment_id
                       WHERE city_id=?
                       GROUP BY at.time_id''', (city_id, )).fetchall()))
+
+
+def get_max_temperatures_from_areas(city_id):
+    return [cursor.execute('''SELECT MAX(at.temperature) as MAX FROM HOUSES h
+                             INNER JOIN APARTMENTS a on h.id = a.house_id
+                             INNER JOIN APARTMENT_TEMPERATURE at ON a.id = at.apartment_id
+                             WHERE city_id=? and area_id=?''', (city_id, i)).fetchall() for i in range(1, 5)]
+
+

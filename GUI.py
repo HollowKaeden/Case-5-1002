@@ -70,7 +70,7 @@ class main_window(QWidget):
         plt.show()
 
     def fifth_task(self):
-        pass
+        print(db.get_max_temperatures_from_areas(1))
 
 
 class first_task(QWidget):
