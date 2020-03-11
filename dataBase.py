@@ -48,6 +48,7 @@ def add_house(city_id, area_id, house):
                                    VALUES (?,?,?,?)''',
                                    (city_id, area_id, house['house_id'],
                                    house['apartment_count']))
+    conn.commit()
 
 
 def add_apartment(apartment_number, house):
@@ -64,6 +65,15 @@ def get_cities():
 def get_houses():
     return list(cursor.execute('SELECT * from HOUSES'))
 
+
+def add_apartments_city(city_id):
+    for house in cursor.execute('SELECT * FROM HOUSES WHERE city_id=?', (city_id, )).fetchall():
+        house_id, apartment_count = house[0], house[-1]
+        for apartment_number in range(1, apartment_count + 1):
+            cursor.execute('''INSERT INTO APARTMENTS (apartment_number, house_id) VALUES (?,?)''',
+            (apartment_number, house_id))
+    conn.commit()
+    
 
 def add_apartments():
     for house in get_houses():
@@ -103,9 +113,9 @@ def get_id_apartment(house_id, apartment_number):
 
 
 def get_apartments_number1():
-    return cursor.execute('''SELECT h.city_id, h.area_id, h.house_number, a.apartment_number, a.id
-    FROM APARTMENTS a INNER JOIN HOUSES h ON a.house_id = h.id 
-    WHERE h.house_number=? AND a.apartment_number=? and h.area_id=?
+    return cursor.execute('''SELECT ct.id, h.area_id, h.house_number, a.apartment_number, a.id
+    FROM APARTMENTS a INNER JOIN HOUSES h ON a.house_id = h.id INNER JOIN CITIES ct on ct.id = h.city_id
+    WHERE h.area_id=? AND h.house_number=? AND a.apartment_number=? 
     ''', (1, 1, 1)).fetchall()
 
 
@@ -114,14 +124,17 @@ def add_temperature_city(time_id, city_id, temp):
                         (city_id, time_id, float(temp)))
 
 
-def add_temperature_apartment(time_id, apartment_id, temperature):
-    cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
-                   (apartment_id, time_id, float(temperature)))
+def add_temperature_apartments(time_id, apartments, house_id):
+    for apt in apartments:
+        cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
+                       (get_id_apartment(house_id, apt['apartment_id']), time_id, float(apt['temperature'])))
+    conn.commit()
 
 
 def add_temperature_citys_oneApp(apartment_id, time_id, temperature):
     cursor.execute('INSERT INTO APARTMENT_TEMPERATURE (apartment_id, time_id, temperature) VALUES (?, ?, ?)',
                    (apartment_id, time_id, float(temperature)))
+    conn.commit()
 
 
 def get_city_id(cityName):
@@ -151,23 +164,6 @@ def get_apartments_temperature_from_one_city(city_id):
     return cursor.execute('SELECT a.apartment_number, at.temperature FROM HOUSES \
 h INNER JOIN APARTMENTS a on h.id = a.house_id INNER JOIN APARTMENT_TEMPERATURE at \
 on a.id = at.apartment_id WHERE h.city_id=?', (city_id, )).fetchall()
-
-
-def do_all_requests(time, city_id):
-    # второе задание работает
-    add_temperature_city(time, city_id, remote.get_city_temperature(city_id))
-
-    # третье задание работает
-    for house in get_houses_city(city_id):
-        for apt in remote.get_apartments_temperature(house[1], house[2], house[3]):
-            add_temperature_apartment(time, get_id_apartment(house[0], apt['apartment_id']), apt['temperature'])
-
-    # четвертое задание работает
-    for app in get_apartments_number1():
-        if city_id == app[0]:
-            continue
-        add_temperature_citys_oneApp(app[4], time, remote.get_apartment_temperature(app[0], app[1], app[2], app[3]))
-    conn.commit()
 
 
 def get_apartments_temperature_from_all_cities():
@@ -206,4 +202,7 @@ def get_max_temperatures_from_areas(city_id):
                              WHERE city_id=? and area_id=?''', (city_id, i)).fetchone())
     return [i[0] for i in temp]
 
-
+def help():
+    return cursor.execute('''SELECT h.city_id, h.area_id, h.house_number, a.apartment_number, at.time_id
+    FROM APARTMENT_TEMPERATURE at INNER JOIN APARTMENTS a on at.apartment_id=a.id INNER JOIN
+    HOUSES h on a.house_id=h.id''').fetchall()

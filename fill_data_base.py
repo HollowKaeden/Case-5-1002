@@ -11,8 +11,13 @@ def instalInfo():
         city = get_city_data(city_id)
         db.add_city(city_id, city)
 
-        for area_id in range(1, city['area_count'] + 1):
-            area = get_area_data(city_id, area_id)
-            for house in area:
-                db.add_house(city_id, area_id, house)
+        add_city_houses(city_id)
     db.add_apartments()
+
+
+def add_city_houses(city_id):
+    city = db.get_city(city_id)
+    for area_id in range(1, city.area_count + 1):
+        area = get_area_data(city_id, area_id)
+        for house in area:
+            db.add_house(city_id, area_id, house)
