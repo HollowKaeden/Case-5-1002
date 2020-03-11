@@ -144,7 +144,7 @@ id=? and area_id=? and house_number=?',
 
 
 def get_cities_temperature_half_year(city_id):
-    return cursor.execute('SELECT temperature FROM CITIES_TEMPERATURE WHERE time_id <= 120 and city_id=?', (city_id, )).fetchall()
+    return cursor.execute('SELECT temperature FROM CITIES_TEMPERATURE WHERE time_id <= 180 and city_id=?', (city_id, )).fetchall()
 
 
 def get_apartments_temperature_from_one_city(city_id):
@@ -198,9 +198,12 @@ def get_average_temperature(city_id):
 
 
 def get_max_temperatures_from_areas(city_id):
-    return [cursor.execute('''SELECT MAX(at.temperature) as MAX FROM HOUSES h
+    temp = list()
+    for i in range(1, 5):
+        temp.append(cursor.execute('''SELECT MAX(at.temperature) as MAX FROM HOUSES h
                              INNER JOIN APARTMENTS a on h.id = a.house_id
                              INNER JOIN APARTMENT_TEMPERATURE at ON a.id = at.apartment_id
-                             WHERE city_id=? and area_id=?''', (city_id, i)).fetchall() for i in range(1, 5)]
+                             WHERE city_id=? and area_id=?''', (city_id, i)).fetchone())
+    return [i[0] for i in temp]
 
 

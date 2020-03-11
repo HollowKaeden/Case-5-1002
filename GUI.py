@@ -52,8 +52,9 @@ class main_window(QWidget):
         plt.show()
 
     def third_task(self):
-        plt.plot(db.get_average_temperature(6))
+        plt.plot(db.get_average_temperature(11))
         plt.ylabel('Температура')
+        plt.title('Температура в квартирах')
         plt.show()
 
     def fourth_task(self):
@@ -70,7 +71,13 @@ class main_window(QWidget):
         plt.show()
 
     def fifth_task(self):
-        print(db.get_max_temperatures_from_areas(1))
+        fig, ax = plt.subplots()
+        x = list(range(1, 5))
+        y = db.get_max_temperatures_from_areas(11)
+        fig.set_figwidth(4.5)
+        fig.set_figheight(4)
+        ax.bar(x, y)
+        plt.show()
 
 
 class first_task(QWidget):
