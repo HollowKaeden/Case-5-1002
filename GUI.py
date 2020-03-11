@@ -52,7 +52,9 @@ class main_window(QWidget):
         plt.show()
 
     def third_task(self):
-        print(db.get_average_temperature(7))
+        plt.plot(db.get_average_temperature(6))
+        plt.ylabel('Температура')
+        plt.show()
 
     def fourth_task(self):
         fig, axs = plt.subplots(4, 4)
@@ -64,6 +66,7 @@ class main_window(QWidget):
                 if not(i == 3 and j == 3):
                     axs[i, j].plot(plts.pop())
         fig.suptitle('Температура в квартирах')
+        fig.tight_layout()
         plt.show()
 
     def fifth_task(self):
