@@ -168,20 +168,19 @@ on a.id = at.apartment_id WHERE h.city_id=?', (city_id, )).fetchall()
 
 def get_apartments_temperature_from_all_cities():
     apartments = [1, 14965, 60673, 107037, 121301, 137325, 148889, 159857, 167757, 180133,
-                  # 189665,
+                  189665,
                   197341,
                   241681,
                   252465,
                   265353]
     temp = list()
     for apartment_id in apartments:
-        temp.append(cursor.execute('''SELECT apartment_id, time_id, temperature 
-                                      FROM APARTMENT_TEMPERATURE WHERE apartment_id=?
-                                      ORDER BY time_id''', (apartment_id, )).fetchall())
-    temp.append(cursor.execute('''SELECT apartment_id, time_id, temperature 
-                                  FROM APARTMENT_TEMPERATURE WHERE apartment_id=? 
-                                  GROUP BY time_id
-                                  ORDER BY time_id''', (189665, )).fetchall())
+        temp.append(cursor.execute('''SELECT c.name, at.temperature
+                                          FROM CITIES c INNER JOIN HOUSES h ON c.id = h.city_id
+                                          INNER JOIN APARTMENTS a on h.id = a.house_id
+                                          INNER JOIN APARTMENT_TEMPERATURE at ON a.id = at.apartment_id
+                                          WHERE at.apartment_id=?
+                                          ORDER BY time_id''', (apartment_id,)).fetchall())
     return temp
 
 
@@ -201,6 +200,7 @@ def get_max_temperatures_from_areas(city_id):
                              INNER JOIN APARTMENT_TEMPERATURE at ON a.id = at.apartment_id
                              WHERE city_id=? and area_id=?''', (city_id, i)).fetchone())
     return [i[0] for i in temp]
+
 
 def help():
     return cursor.execute('''SELECT h.city_id, h.area_id, h.house_number, a.apartment_number, at.time_id

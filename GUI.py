@@ -61,12 +61,13 @@ class main_window(QWidget):
         fig, axs = plt.subplots(4, 4)
         plts = list()
         for i in db.get_apartments_temperature_from_all_cities():
-            plts.append(list(map(lambda x: float(x[2]), i)))
+            plts.append(list(map(lambda x: (x[0], float(x[1])), i)))
         for i in range(4):
             for j in range(4):
-                if not(i == 3 and j == 3):
-                    axs[i, j].plot(plts.pop())
-        fig.suptitle('Температура в квартирах')
+                if not (i == 3 and j == 3):
+                    tmp = plts.pop()
+                    axs[i, j].plot(list(map(lambda x: x[1], tmp)))
+                    axs[i, j].set_title(tmp[0][0])
         fig.tight_layout()
         plt.show()
 
